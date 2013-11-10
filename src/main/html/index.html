@@ -1,55 +1,37 @@
 <!doctype html>
-<html>
+<html lang="en" ng-app="myApp">
   <head>
+    <script src='lib/angular.js'></script>
     <script src='https://cdn.firebase.com/v0/firebase.js'></script>
-    <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-simple-login.js'></script>
-    <script type='text/javascript' src='https://login.persona.org/include.js'></script>
-    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
+    <script src='https://cdn.firebase.com/v0/firebase-simple-login.js'></script>
+    <script src='lib/angularfire.js'></script>
+    <script src='https://login.persona.org/include.js'></script>
   </head>
-  <body>
-  <button id="login">Login :</button>
+  <body ng-controller="AppCtrl" ng-mask>
+    <span ng-show="user">
+      {{user.email}} | <a ng-click="logout()">Logout</a>
+    </span>
+    <span ng-hide="user"><a ng-click="login()">Login</a></span>
 
-    <div id='messagesDiv'></div>
-      <input type='text' id='nameInput' placeholder='Name'>
-      <input type='text' id='messageInput' placeholder='Message'>
-    <script>
+    <div ng-show="user" ng-controller="TaskCtrl">
+      <ul>
+        <li ng-repeat="task in tasks">
+          <div>
+            <input type="checkbox" ng-model="task.complete" /> - {{task.text}} - <button ng-click="removeTask(task)">Remove</button>
+          </div>
+        </li>
+      </ul>
+      <div>
+        <input type='text' ng-model="newTask" placeholder='New Task' ng-keypress="onPress($event)">
+        <button ng-click="markAllTasksComplete()">Mark All Complete</button>
+        <button ng-click="removeCompletedTasks()">Clear Completed</button>
+      </div>
 
-      var myDataRef = new Firebase('https://steve-mosley.firebaseIO.com/chats');
-      var auth = new FirebaseSimpleLogin(myDataRef, function(error, user) {
-        if (error) {
-          // an error occurred while attempting login
-          console.log(error);
-        } else if (user) {
-          // user authenticated with Firebase
-          console.log('User ID: ' + user.md5_hash  + ', Provider: ' + user.provider);
-          console.log('User ID: ' + auth.uid);
-        } else {
-          // user is logged out
-          console.log('LOGGED OUT')
-        }
-      });
-
-      $('#login').click(function (e) {
-        auth.login('persona');
-      });
-
-      $('#messageInput').keypress(function (e) {
-        if (e.keyCode == 13) {
-          var name = $('#nameInput').val();
-          var text = $('#messageInput').val();
-          myDataRef.push({name: name, text: text});
-          $('#messageInput').val('');
-        }
-      });
-      myDataRef.on('child_added', function(snapshot) {
-        var message = snapshot.val();
-        displayChatMessage(message.name, message.text);
-      });
-
-      function displayChatMessage(name, text) {
-        $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('#messagesDiv'));
-        $('#messagesDiv')[0].scrollTop = $('#messagesDiv')[0].scrollHeight;
-      };
-    </script>
+      <div>
+        <p>{{remaining}} remaining</p>
+        <p>{{count}} total</p>
+      <div>
+    </div>
+    <script src="js/main.js"></script>
   </body>
 </html>
